@@ -1,4 +1,4 @@
-# This file is to debug various variables in makefile
+# This makefile is intended to debug makefile's variables.
 
 %:
 	@echo '$*=$($*)'

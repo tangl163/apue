@@ -1,5 +1,8 @@
 # Local makefile
 
+LIBDIR = ./lib
+LIB = $(wildcard $(LIBDIR)/*.c)
+
 a.out: common.o  current.o
 	gcc common.o current.o
 

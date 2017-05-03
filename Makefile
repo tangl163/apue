@@ -1,17 +1,17 @@
-# Local makefile
+# Local makefile.
 
 LIBDIR = ./lib
-LIB = $(wildcard $(LIBDIR)/*.c)
+LIBARC = $(LIBDIR)/lib.a
 
-a.out: common.o  current.o
-	gcc common.o current.o
+a.out: object.o lib
+	gcc -o $@ $< $(LIBARC)
 
-common.o: common.c common.h
-	gcc -c common.c
+object.o: object.c common.h
+	gcc -c object.c
 
-current.o: current.c common.h
-	gcc -c current.c
+lib:
+	$(MAKE) -C $(LIBDIR)
 
 clean:
-	rm a.out current.o
+	rm -f *.out *.c *.o
 

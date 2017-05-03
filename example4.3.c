@@ -1,4 +1,4 @@
-#include "./lib/common.h"
+#include "common.h"
 
 int main(int argc, char *argv[])
 {
@@ -46,3 +46,4 @@ int main(int argc, char *argv[])
 
     exit(0);
 }
+

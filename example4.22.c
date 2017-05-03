@@ -1,4 +1,4 @@
-#include "./lib/common.h"
+#include "common.h"
 
 
 static void fcategorise(char *filename, const unsigned int st_mode);

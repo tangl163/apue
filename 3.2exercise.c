@@ -1,4 +1,4 @@
-#include "./lib/common.h"
+#include "common.h"
 
 /* a local implemention of dup2 */
 

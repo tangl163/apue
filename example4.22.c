@@ -1,16 +1,17 @@
 #include "common.h"
 
 static void myftw(char *);
-static void statistic(char *pathname, int length);
-static void fcategorise(char *filename, const unsigned int st_mode);
+static void dopath();
+static void fcategorise(struct stat *);
 
-static int n_rfile;  // number of regular file count.
-static int n_dfile;  // number of directory count.
-static int n_bfile;  // number of block special file count.
-static int n_cfile;  // number of character special file count.
-static int n_pfile;  // number of named pipe count.
-static int n_sfile;  // number of socket count.
-static int n_lfile;  // number of symbolic link count.
+static int n_rfile;    // number of regular file count.
+static int n_dfile;    // number of directory count.
+static int n_bfile;    // number of block special file count.
+static int n_cfile;    // number of character special file count.
+static int n_pfile;    // number of named pipe count.
+static int n_sfile;    // number of socket count.
+static int n_lfile;    // number of symbolic link count.
+static int n_tfile;    // number of total file number.
 
 
 int main(int argc, char *argv[])
@@ -20,71 +21,95 @@ int main(int argc, char *argv[])
 
     myftw(argv[1]);
 
-    printf("n_rfile: %d\n", n_rfile);
-    printf("n_dfile: %d\n", n_dfile);
-    printf("n_bfile: %d\n", n_bfile);
-    printf("n_cfile: %d\n", n_cfile);
-    printf("n_pfile: %d\n", n_pfile);
-    printf("n_sfile: %d\n", n_sfile);
-    printf("n_lfile: %d\n", n_lfile);
-    printf("  total: %d\n", n_rfile + n_dfile + n_bfile + n_cfile + n_pfile + n_sfile + n_lfile);
+    n_tfile = n_rfile + n_dfile + n_bfile + n_cfile + n_pfile + n_sfile + n_lfile;
+    if (n_tfile == 0)
+        n_tfile = 1;
+
+    printf("n_rfile: %7d \t %7.2f %%\n", n_rfile, n_rfile * 100.0 / n_tfile);
+    printf("n_dfile: %7d \t %7.2f %%\n", n_dfile, n_dfile * 100.0 / n_tfile);
+    printf("n_bfile: %7d \t %7.2f %%\n", n_bfile, n_bfile * 100.0 / n_tfile);
+    printf("n_cfile: %7d \t %7.2f %%\n", n_cfile, n_cfile * 100.0 / n_tfile);
+    printf("n_pfile: %7d \t %7.2f %%\n", n_pfile, n_pfile * 100.0 / n_tfile);
+    printf("n_sfile: %7d \t %7.2f %%\n", n_sfile, n_sfile * 100.0 / n_tfile);
+    printf("n_lfile: %7d \t %7.2f %%\n", n_lfile, n_lfile * 100.0 / n_tfile);
+    printf("n_tfile: %7d\n", n_tfile);
+
+    exit(0);
 }
 
 
-static size_t pathmax;
-static char *pathnamebuf;
+static size_t pathlen;
+static char *fullpath;
 
 
 static void myftw(char *pathname)
 {
-    pathnamebuf = path_alloc(&pathmax);
-    strncpy(pathnamebuf, pathname, pathmax);
-    strcat(pathnamebuf, "\0");
+    fullpath = path_alloc(&pathlen);
     
-    statistic(pathnamebuf, strlen(pathnamebuf));
+    if (pathlen <= strlen(pathname)) {
+        pathlen =  strlen(pathname) * 2;
+        if ((fullpath = realloc(fullpath, pathlen)) == NULL)
+            err_sys("realloc error");
+    }
+
+    strcpy(fullpath, pathname);
+    
+    dopath();
 }
 
 
 /**
- * Recursive dealing file and directory. 
+ * Dealing file and directory recursively. 
  */
-static void statistic(char *pathname, int length)
+static void dopath()
 {
     DIR *dp;
-    char *ptr;
+    int length;
     struct stat stbuf;
     struct dirent *dir;
     
-    if (lstat(pathname, &stbuf) < 0)
-        err_sys("lstat for %s error", pathname);
+    if (lstat(fullpath, &stbuf) < 0)
+        err_ret("lstat error for %s", fullpath);
 
+    fcategorise(&stbuf);    // first through dealing the fullpath
+
+    /* return if not a directory */
     if (!S_ISDIR(stbuf.st_mode))
         return;
 
-    if ((dp = opendir(pathname)) == NULL)
-        err_sys("opendir path %s error", pathname);
+    length = strlen(fullpath);
+
+    /* we add two extra spaces, one for '/' and another for terminating null byte */
+    if (length + NAME_MAX + 2 > pathlen) {
+        pathlen *= 2;
+        if ((fullpath = realloc(fullpath, pathlen)) == NULL)
+            err_sys("realloc error");
+    }
+
+    if ((dp = opendir(fullpath)) == NULL)
+        err_ret("opendir error directory %s", fullpath);
+
+    fullpath[length++] = '/';
+    fullpath[length] = '\0';
 
     /* read dir entries */
     while ((dir = readdir(dp)) != NULL) {
         if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0)
             continue;
 
-        ptr = pathname + length + 1;
+        /* concatenate filename with fullpath */
+        strcpy(&fullpath[length], dir->d_name);
 
-        *ptr = '\0';
-
-        /* concatenate filename with pathname */
-        strncat(pathname, "/", pathmax - length);
-        strncat(pathname, dir->d_name, pathmax - length);
-
-        if (lstat(pathname, &stbuf) < 0)
-            err_sys("lstat error: %s", pathname);
-
-        fcategorise(pathname, stbuf.st_mode);
+        if (lstat(fullpath, &stbuf) < 0)
+            err_ret("lstat error: %s", fullpath);
 
         if (S_ISDIR(stbuf.st_mode))
-            statistic(pathname, strlen(pathname));
+            dopath();
+        else
+            fcategorise(&stbuf);
     }
+
+    fullpath[length - 1] = '\0';
 
     closedir(dp);
 }
@@ -92,23 +117,32 @@ static void statistic(char *pathname, int length)
 /**
  * file type counter.
  */
-static void fcategorise(char *filename, const unsigned int st_mode)
+static void fcategorise(struct stat *stbuf)
 {
-    if (S_ISREG(st_mode))
-        n_rfile++;
-    else if (S_ISDIR(st_mode))
-        n_dfile++;
-    else if (S_ISBLK(st_mode))
-        n_bfile++;
-    else if (S_ISCHR(st_mode))
-        n_cfile++;
-    else if (S_ISFIFO(st_mode))
-        n_pfile++;
-    else if (S_ISSOCK(st_mode))
-        n_sfile++;
-    else if (S_ISLNK(st_mode))
-        n_lfile++;
-    else
-        fprintf(stderr, "Unknown file %s\n", filename);
+    switch (stbuf->st_mode & S_IFMT) {
+        case S_IFREG:
+            n_rfile++;
+            break;
+        case S_IFDIR:
+            n_dfile++;
+            break;
+        case S_IFBLK:
+            n_bfile++;
+            break;
+        case S_IFCHR:
+            n_cfile++;
+            break;
+        case S_IFIFO:
+            n_pfile++;
+            break;
+        case S_IFSOCK:
+            n_sfile++;
+            break;
+        case S_IFLNK:
+            n_lfile++;
+            break;
+        default:
+            err_msg("Unknown file: %s", fullpath);
+    }
 }
 

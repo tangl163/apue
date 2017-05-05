@@ -11,7 +11,7 @@ static int n_cfile;    // number of character special file count.
 static int n_pfile;    // number of named pipe count.
 static int n_sfile;    // number of socket count.
 static int n_lfile;    // number of symbolic link count.
-static int n_tfile;    // number of total file number.
+static int n_tfile;    // number of total file count.
 
 
 int main(int argc, char *argv[])
@@ -44,10 +44,13 @@ static char *fullpath;
 
 static void myftw(char *pathname)
 {
+    int actuallen;
+
     fullpath = path_alloc(&pathlen);
     
-    if (pathlen <= strlen(pathname)) {
-        pathlen =  strlen(pathname) * 2;
+    actuallen = strlen(pathname);
+    if (pathlen <= actuallen) {
+        pathlen =  actuallen * 2;
         if ((fullpath = realloc(fullpath, pathlen)) == NULL)
             err_sys("realloc error");
     }

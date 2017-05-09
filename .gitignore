@@ -1,6 +1,7 @@
 .gitingore
 bin/*
 local/*
+tags
 
 # Object files
 *.o

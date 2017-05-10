@@ -1,63 +1,86 @@
 #include "common.h"
 
-void printde(char *, DIR *dirp);
+#define IN TRUE    /* inside file hole */
+#define OUT FALSE  /* outside file hole */
 
-int main(void)
+#define BUFFSIZE 4096
+#define RWRWRW (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH)
+
+int write2fd(int fd, char *buf, int nbytes);
+int llseek(int fd, int offset, int whence);
+
+/**
+ * 4.6. Write a utility like cp(1) that copies a ﬁle containing holes,
+ * without writing the bytes of 0 to the output ﬁle.
+ */
+int main(int argc, char *argv[])
 {
-    pid_t pid;
-    DIR *dirp;
-    struct stat statbuf;
+    int n, i, j;
+    int fd1, fd2;
+    int flag, offset;
+    char rdbuf[BUFFSIZE];
+    char wrbuf[BUFFSIZE];
+    
+    if (argc != 3)
+        err_quit("Usage: %s <source file> <dest file>", argv[0]);
+    
+    if ((fd1 = open(argv[1], O_RDONLY)) < 0)
+        err_sys("open %s error", argv[1]);
+    
+    if ((fd2 = open(argv[2], O_RDWR | O_CREAT | O_TRUNC, RWRWRW)) < 0)
+        err_sys("open %s error", argv[2]);
 
-    if (mkdir("test", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) < 0)
-        err_sys("mkdir error");
+    while ((n = read(fd1, rdbuf, BUFFSIZE)) > 0) {
+        flag = OUT;    // first we are out of hole.
+        offset = 0;    // initial file hole offset.
+        for (i = 0, j = 0; i < n; i++) {
+            if (rdbuf[i] != '\0') {
+                if (flag == OUT && offset > 0 && llseek(fd2, offset, SEEK_CUR))
+                    offset = 0;    // reset offset.
 
-    if (stat("test", &statbuf) < 0)
-        err_sys("stat error");
+                flag = IN;
+                wrbuf[j++] = rdbuf[i];
+            } else {
+                if (flag == IN && j > 0 && write2fd(fd2, wrbuf, j))
+                    j = 0;
 
-    printf("Before remove: %d\n", statbuf.st_size);
+                flag = OUT;
+                offset++;
+            }
+        }
 
-    if ((dirp = opendir("test")) == NULL)
-        err_sys("opendir error");
-
-    printde("Before remove", dirp);
-
-    /* fork a child process to execute rmdir. */
-    if ((pid = fork()) < 0) {
-        err_sys("fork error");
-    } else if (pid == 0) {    // child
-        if (rmdir("test") < 0)
-            err_sys("rmdir error");
-
-        exit(0);
-
-    } else {
-        sleep(3);
+        /* we make sure this utility to work properly if the `source file` has no hole. */
+        if (flag == IN && j > 0)
+            write2fd(fd2, wrbuf, j);
     }
 
-    /* Now we wait child to exit. */
-    if (waitpid(pid, NULL, 0) != pid)
-        err_sys("wait for child error");
-
-    printde("(parent) After remove", dirp);
-
-    if (stat("test", &statbuf) < 0)
-        err_sys("stat error");
-    printf("After remove: %d\n", statbuf.st_size);
-
-    closedir(dirp);
-
+    close(fd1);
+    close(fd2);
+    
     exit(0);
 }
 
 
 /**
- * print directory entries.
+ * Another version of `write`. It's intended to avoid nesting too deep of controlling clause.
  */
-void printde(char *msg, DIR *dirp)
+int write2fd(int fd, char *buf, int nbytes)
 {
-    struct dirent *dir;
-    while ((dir = readdir(dirp)) != NULL) {
-        printf("%s: %s\n", msg, dir->d_name);
+    if (write(fd, buf, nbytes) != nbytes) {
+        err_sys("write error");
     }
+
+    return TRUE;
+}
+
+/**
+ * Another version of `lseek`. It's intended to avoid nesting too deep of controlling clause.
+ */
+int llseek(int fd, int offset, int whence)
+{
+    if (lseek(fd, offset, whence) == -1)
+        err_sys("lseek error");
+
+    return TRUE;
 }
 

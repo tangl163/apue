@@ -2,8 +2,9 @@
 
 LIBDIR = ./lib
 LIBARC = $(LIBDIR)/lib.a
+TARGET = a.out
 
-a.out: object.o lib
+$(TARGET): object.o lib
 	gcc -o $@ $< $(LIBARC)
 
 object.o: object.c common.h

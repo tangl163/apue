@@ -1,7 +1,7 @@
 #include "common.h"
 
 static void myftw(char *);
-static void dopath();
+static void dopath(void);
 static void fcategorise(struct stat *);
 
 static int n_rfile;    // number of regular file count.
@@ -72,17 +72,17 @@ static void dopath()
     struct dirent *dir;
     
     if (lstat(fullpath, &stbuf) < 0)
-        err_ret("lstat error for %s", fullpath);
+        return err_ret("lstat error for %s", fullpath);
 
-    fcategorise(&stbuf);    // first through dealing the fullpath
+    fcategorise(&stbuf);    // first through dealing the fullpath.
 
-    /* return if not a directory */
+    /* return if not a directory. */
     if (!S_ISDIR(stbuf.st_mode))
         return;
 
     length = strlen(fullpath);
 
-    /* we add two extra spaces, one for '/' and another for terminating null byte */
+    /* we add two extra spaces, one for '/' and another for terminating null byte. */
     if (length + NAME_MAX + 2 > pathlen) {
         pathlen *= 2;
         if ((fullpath = realloc(fullpath, pathlen)) == NULL)
@@ -90,23 +90,26 @@ static void dopath()
     }
 
     if ((dp = opendir(fullpath)) == NULL)
-        err_ret("opendir error directory %s", fullpath);
+        return err_ret("opendir error directory %s", fullpath);
 
     fullpath[length++] = '/';
     fullpath[length] = '\0';
 
-    /* read dir entries */
+    /* read dir entries. */
     while ((dir = readdir(dp)) != NULL) {
         if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0)
             continue;
 
-        /* concatenate filename with fullpath */
+        /* concatenate filename with fullpath. */
         strcpy(&fullpath[length], dir->d_name);
 
-        if (lstat(fullpath, &stbuf) < 0)
+        if (lstat(fullpath, &stbuf) < 0) {
             err_ret("lstat error: %s", fullpath);
+            continue;
+        }
 
-        if (S_ISDIR(stbuf.st_mode))
+        /* add access test. */
+        if (S_ISDIR(stbuf.st_mode) && access(fullpath, R_OK | X_OK) == 0)
             dopath();
         else
             fcategorise(&stbuf);

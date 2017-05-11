@@ -47,6 +47,7 @@ void set_fl(int fd, int flag);
 
 void clear_fl(int fd, int flag);
 
+long getclktck(void);
 
 #endif /* _COMMON_HEADER */
 

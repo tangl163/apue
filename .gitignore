@@ -13,3 +13,6 @@ tags
 # Executables
 *.out
 
+# Dependencies
+*.d
+

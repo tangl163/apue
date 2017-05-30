@@ -4,6 +4,7 @@ local/*
 tags
 
 # Object files
+object.c
 *.o
 
 # Libraries

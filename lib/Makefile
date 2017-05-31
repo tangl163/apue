@@ -1,16 +1,17 @@
 SRC = $(wildcard *.c)
 OBJ = $(SRC:.c=.o)
-DEP = $(OBJ:.o=.d)
+
+# ifndef CFLAGS
+CFLAGS = -c
+# endif
 
 lib.a: $(OBJ)
 	$(AR) rv $@ $?
 
--include $(DEP)
-
-%.d: %.c
-	@gcc $< -MM -MT $(@:.d=.o) > $@
+%.o: %.c
+	gcc -o $@ $(CFLAGS) $<
 
 .PHONY: clean
 clean:
-	rm -f *.o *.a *.d
+	rm -f *.o *.a
 

@@ -3,7 +3,7 @@
 /**
  * Set the file descriptor flag of fd to flag
  */
-void set_flag(int fd, int flag)
+void set_fl(int fd, int flag)
 {
     int val;
 
@@ -19,7 +19,7 @@ void set_flag(int fd, int flag)
 /**
  * Clear the file descriptor flag of fd with flag
  */
-void clear_flag(int fd, int flag)
+void clear_fl(int fd, int flag)
 {
     int val;
 

@@ -3,7 +3,7 @@
 LIBDIR = ./lib
 LIBARC = $(LIBDIR)/lib.a
 TARGET = a.out
-export CFLAGS = -c
+export CFLAGS = -c -Wall -Wextra -Werror -Wmissing-prototypes -Wstrict-prototypes
 
 ifdef DEBUG
 CFLAGS += -g

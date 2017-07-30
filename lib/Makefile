@@ -1,9 +1,9 @@
 SRC = $(wildcard *.c)
 OBJ = $(SRC:.c=.o)
 
-# ifndef CFLAGS
+ifndef CFLAGS
 CFLAGS = -c
-# endif
+endif
 
 lib.a: $(OBJ)
 	$(AR) rv $@ $?

@@ -1,7 +1,15 @@
 #include "common.h"
 
+static int envrionlen(void);
 static void exit_handle(void);
+static char *mygetenv(char *name);
+static void copyenvlist(char **dest);
 static int explode(char *, char *, char *);
+static int addenv(char *name, char *value);
+static char *envcpy(char *name, char *value);
+static void replaceenv(char *search, char *replace);
+static int modifyenv(char *env, char *name, char *value);
+static int explode(char *source, char *name, char *value);
 
 extern char **environ;
 
@@ -27,14 +35,17 @@ int main(void)
         if (explode(buf, name, value) < 0)
             continue;
 
-        if ((temp = genenv(name)) != NULL)
-            if (modifyenb(temp, name, value) < 0)
+        if ((temp = mygetenv(name)) != NULL) {
+            if (modifyenv(temp, name, value) < 0)
                 err_msg("An error occurred on changing env");
-        else
+        } else {
             if (addenv(name, value) < 0)
                 err_msg("An error occurred on adding env");
+        }
 
-        exit_handle();
+        printf("%s\n", mygetenv(name));
+        //exit_handle();
+        printf("%s\n", environ[20]);
 
         printf("%%"); 
     }
@@ -45,11 +56,34 @@ int main(void)
     exit(0);
 }
 
+static char *mygetenv(char *name)
+{
+    int i;
+    unsigned int len;
+    char **p = environ;
+    char *temp;
+
+    len = strlen(name);
+
+    while (*p) {
+        temp = *p++;
+
+        for (i = 0; i < len; i++) {
+            if (temp[i] != name[i])
+                break;
+        }
+
+        if (i == len && temp[len] == '=')
+            return temp;
+    }
+
+    return NULL;
+}
+
 static int modifyenv(char *env, char *name, char *value)
 {
-    int len;
+    unsigned int len;
     char *p, *pn, *pv;
-    char *temp;
 
     pn = name, pv = value;
 
@@ -62,10 +96,10 @@ static int modifyenv(char *env, char *name, char *value)
 
     } else {
 
-        if ((temp = envcpy(name, value)) == NULL)
+        if ((p = envcpy(name, value)) == NULL)
             return -1;
 
-        replaceenv(env, temp);
+        replaceenv(env, p);
     }
 
     return 0;
@@ -97,7 +131,7 @@ static int addenv(char *name, char *value)
         p[len + 1] = NULL;
 
     } else {
-        p = (char **)realloc(sizeof(*environ) * (len + 1));
+        p = (char **)realloc(environ, sizeof(*environ) * (len + 1));
 
         if (p == NULL)
             return -1;
@@ -125,8 +159,6 @@ static void copyenvlist(char **dest)
     while (*source)
         *p++ = *source++;
     
-    free(environ);
-
     *p = NULL;
     
     environ = dest;
@@ -148,6 +180,7 @@ static char *envcpy(char *name, char *value)
     if ((p = malloc(sizeof(char) * len)) == NULL)
         return NULL;
     
+    /*
     temp = p;
 
     while (*pn)
@@ -158,7 +191,10 @@ static char *envcpy(char *name, char *value)
     while (*pv)
         *temp++ = *pv++;
 
-    *temp = '\0';
+    *temp = '\0';*/
+    strcpy(p, name);
+    strcat(p, "=");
+    strcat(p, value);
 
     return p;
 }
@@ -171,12 +207,12 @@ static void replaceenv(char *search, char *replace)
 
         if (*p == search) {
             *p = replace;
-            free(search);
+            //free(search);
 
             break;
         }
 
-        *p++;
+        *p += 1;
     }
 }
 

@@ -129,7 +129,7 @@ static int addenv(char *name, char *value)
         p[len + 1] = NULL;
 
     } else {
-        p = (char **)realloc(environ, sizeof(char *) * (len + 1));
+        p = (char **)realloc(environ, sizeof(*environ) * (len + 1));
 
         if (p == NULL)
             return -1;
@@ -206,7 +206,7 @@ static void replaceenv(char *search, char *replace)
             break;
         }
 
-        *p += 1;
+        p++;
     }
 }
 

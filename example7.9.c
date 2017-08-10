@@ -45,7 +45,7 @@ int main(void)
 
         printf("%s\n", mygetenv(name));
         //exit_handle();
-        printf("%s\n", environ[20]);
+        //printf("%s\n", environ[20]);
 
         printf("%%"); 
     }
@@ -58,22 +58,22 @@ int main(void)
 
 static char *mygetenv(char *name)
 {
-    int i;
+    unsigned int i, j;
     unsigned int len;
     char **p = environ;
     char *temp;
 
     len = strlen(name);
 
-    while (*p) {
-        temp = *p++;
+    for (i = 0; p[i] != NULL; i++) {
+        temp = p[i];
 
-        for (i = 0; i < len; i++) {
-            if (temp[i] != name[i])
+        for (j = 0; j < len; j++) {
+            if (temp[j] != name[j])
                 break;
         }
 
-        if (i == len && temp[len] == '=')
+        if (j == len && temp[len] == '=')
             return temp;
     }
 
@@ -83,9 +83,7 @@ static char *mygetenv(char *name)
 static int modifyenv(char *env, char *name, char *value)
 {
     unsigned int len;
-    char *p, *pn, *pv;
-
-    pn = name, pv = value;
+    char *p;
 
     len = strlen(name) + strlen(value) + 2;    // one for `=` and nother for `\0`.
 
@@ -131,7 +129,7 @@ static int addenv(char *name, char *value)
         p[len + 1] = NULL;
 
     } else {
-        p = (char **)realloc(environ, sizeof(*environ) * (len + 1));
+        p = (char **)realloc(environ, sizeof(char *) * (len + 1));
 
         if (p == NULL)
             return -1;
@@ -180,7 +178,6 @@ static char *envcpy(char *name, char *value)
     if ((p = malloc(sizeof(char) * len)) == NULL)
         return NULL;
     
-    /*
     temp = p;
 
     while (*pn)
@@ -191,10 +188,7 @@ static char *envcpy(char *name, char *value)
     while (*pv)
         *temp++ = *pv++;
 
-    *temp = '\0';*/
-    strcpy(p, name);
-    strcat(p, "=");
-    strcat(p, value);
+    *temp = '\0';
 
     return p;
 }
@@ -218,19 +212,19 @@ static void replaceenv(char *search, char *replace)
 
 static int explode(char *source, char *name, char *value)
 {
-    char *ps, *pn, *pv;
+    char *p;
     int c;
     int flag = 1;
 
-    ps = source, pn = name, pv = value;
+    p = source;
 
-    while (isspace(*ps))
-        ps++;
+    while (isspace(*p))
+        p++;
 
-    if (strlen(ps) == 0)
+    if (strlen(p) == 0)
         return -1;
 
-    while ((c = *ps++) != '\0' && c != '\n') {
+    while ((c = *p++) != '\0' && c != '\n') {
 
         if (isspace(c)) {
             flag = 0;
@@ -254,7 +248,7 @@ static int explode(char *source, char *name, char *value)
 static int envrionlen(void)
 {
     char **p;
-    int count = 1;
+    int count = 0;
     
     p = environ;
 

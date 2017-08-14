@@ -125,8 +125,8 @@ static int addenv(char *name, char *value)
         if ((temp = envcpy(name, value)) == NULL)
             return -1;
 
-        p[len] = temp;
-        p[len + 1] = NULL;
+        p[len - 1] = temp;
+        p[len] = NULL;
 
     } else {
         p = (char **)realloc(environ, sizeof(*environ) * (len + 1));
@@ -137,8 +137,8 @@ static int addenv(char *name, char *value)
         if ((temp = envcpy(name, value)) == NULL)
             return -1;
 
-        p[len] = temp;
-        p[len + 1] = NULL;
+        p[len - 1] = temp;
+        p[len] = NULL;
 
         environ = p;
     }
@@ -248,7 +248,7 @@ static int explode(char *source, char *name, char *value)
 static int envrionlen(void)
 {
     char **p;
-    int count = 0;
+    int count = 1;
     
     p = environ;
 

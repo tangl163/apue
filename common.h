@@ -50,5 +50,7 @@ void clear_fl(int fd, int flag);
 
 long getclktck(void);
 
+void pr_exit(int status);
+
 #endif /* _COMMON_HEADER */
 

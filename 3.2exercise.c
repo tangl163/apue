@@ -6,7 +6,7 @@ int local_dup2(int fd, int fd2);
 
 extern long open_max(void);
 
-void main(void)
+int main(void)
 {
     int fd;
 
@@ -15,6 +15,8 @@ void main(void)
     write(STDOUT_FILENO, "haha\n", 5);
     write(fd, "\nhaha", 5);
     printf("\n%d\n", fd);
+
+    exit(0);
 }
 
 
@@ -32,7 +34,7 @@ int local_dup2(int fd, int fd2)
     if (fd2 >= max_fileno)
         err_quit("fd2 too big to dup");
 
-    if ((closed = (int *)malloc(max_fileno * sizeof(int))) == NULL)
+    if ((closed = malloc(sizeof *closed * max_fileno)) == NULL)
         err_sys("Call malloc error");
 
     do {
@@ -44,6 +46,7 @@ int local_dup2(int fd, int fd2)
         } else if (temp > fd2) {
             close(fd2);
         }
+
     } while (temp != fd2);
 
     while (i >= 0)

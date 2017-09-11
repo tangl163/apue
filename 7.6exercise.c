@@ -10,12 +10,12 @@ int main(void)
     long *ptr;
     char **pc;
 
-    if ((ptr = (long *)calloc(sizeof(long), LEN)) == NULL)
+    if ((ptr = calloc(sizeof *ptr, LEN)) == NULL)
         err_sys("calloc error");
     
     print_i(ptr, LEN);
 
-    if ((pc = (char **)calloc(sizeof(char *), LEN)) == NULL)
+    if ((pc = calloc(sizeof *pc, LEN)) == NULL)
         err_sys("calloc error");
 
     print_ptr(pc, LEN);

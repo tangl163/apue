@@ -112,7 +112,7 @@ static int addenv(char *name, char *value)
     len = envrionlen();
     
     if (moved == FALSE) {
-        p = (char **)malloc(sizeof(*environ) * (len + 1));
+        p = malloc(sizeof *environ * (len + 1));
 
         if (p == NULL)
             return -1;
@@ -129,7 +129,7 @@ static int addenv(char *name, char *value)
         p[len] = NULL;
 
     } else {
-        p = (char **)realloc(environ, sizeof(*environ) * (len + 1));
+        p = realloc(environ, sizeof *environ * (len + 1));
 
         if (p == NULL)
             return -1;
@@ -175,7 +175,7 @@ static char *envcpy(char *name, char *value)
 
     len = strlen(name) + strlen(value) + 2;    // one for `=` and nother for `\0`.
     
-    if ((p = malloc(sizeof(char) * len)) == NULL)
+    if ((p = malloc(sizeof *p * len)) == NULL)
         return NULL;
     
     temp = p;

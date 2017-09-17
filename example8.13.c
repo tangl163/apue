@@ -13,7 +13,8 @@ int main(int argc, char *argv[])
     if ((ret = mysystem(argv[1])) < 0)
         err_sys("mysystem error");
 
-    printf("%d\n", ret);
+    pr_exit(ret);
+
     exit(ret);
 }
 
@@ -29,7 +30,7 @@ int mysystem(char *cmdstring)
         status = -1;
     } else if (pid == 0) {
         execlp(cmdstring, cmdstring, (char *)0);
-        exit(127);
+        _exit(127);
     }
 
     if (waitpid(pid, &status, 0) < 0) {
@@ -37,9 +38,6 @@ int mysystem(char *cmdstring)
             errno = 0;
         else
             status = -1;
-
-    } else {
-        status = WIFEXITED(status) ?  WEXITSTATUS(status) : -1;
     }
 
     return status;

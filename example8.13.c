@@ -1,7 +1,7 @@
 #include "common.h"
 #include <sys/wait.h>
 
-int mysystem(char *);
+int mysystem(const char *);
 
 int main(int argc, char *argv[])
 {
@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     exit(ret);
 }
 
-int mysystem(char *cmdstring)
+int mysystem(const char *cmdstring)
 {
     pid_t pid;
     int status;
@@ -29,7 +29,7 @@ int mysystem(char *cmdstring)
     if ((pid = fork()) < 0) {
         status = -1;
     } else if (pid == 0) {
-        execlp(cmdstring, cmdstring, (char *)0);
+        execl("/bin/sh", "sh", "-c", cmdstring, (char *)0);
         _exit(127);
     }
 

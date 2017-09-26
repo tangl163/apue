@@ -16,6 +16,8 @@ int main(void)
     } else if (pid == 0) {
         globvar++;
         var++;
+        
+        fclose(stdout);
         _exit(2);
     }
 
@@ -24,7 +26,8 @@ int main(void)
 
     pr_exit(status);
 
-    printf("pid: %ld globbar: %d var: %d\n", (long)getpid(), globvar, var);
+    if (printf("pid: %ld globbar: %d var: %d\n", (long)getpid(), globvar, var) < 0)
+        err_sys("printf error");
 
     exit(0);
 }

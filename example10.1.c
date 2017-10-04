@@ -15,7 +15,8 @@ main(void)
     exit(0);
 }
 
-void sig_segv(int signo)
+void
+sig_segv(int signo)
 {
     printf("SIGSEGV: %d caught\n", signo);
     _exit(0);

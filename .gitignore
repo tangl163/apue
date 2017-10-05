@@ -17,3 +17,6 @@ object.c
 # Dependencies
 *.d
 
+# Swap file
+*.swp
+

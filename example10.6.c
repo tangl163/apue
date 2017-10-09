@@ -18,7 +18,7 @@ main(void)
         if ((ptr = getpwnam("paul")) == NULL)
             err_sys("getpwnam erro");
 
-        if (strcmp(ptr->pw_name, "paul") != 0) 
+        if (strcmp(ptr->pw_name, "paul") != 0)
             printf("username: %s, passwd: %s\n", ptr->pw_name, ptr->pw_passwd);
     }
 }
@@ -32,7 +32,7 @@ sig_alarm(int signo)
 
     if ((ptr = getpwnam("root")) == NULL)
         err_sys("getpwnam(root) error");
-    
+
     alarm(1);
 }
 

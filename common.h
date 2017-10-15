@@ -52,5 +52,7 @@ long getclktck(void);
 
 void pr_exit(int status);
 
+void pr_sigmask(const char *);
+
 #endif /* _COMMON_HEADER */
 

@@ -3,7 +3,7 @@
 
 typedef void Sigfunc(int);
 
-static void sig_int(int);
+static Sigfunc sig_int;
 static Sigfunc *mysignal(int, Sigfunc *);
 
 int
@@ -20,23 +20,29 @@ main(void)
 static Sigfunc *
 mysignal(int signo, Sigfunc *func)
 {
-    sigset_t set;
-    struct sigaction act;
+    struct sigaction act, oact;
 
     if (signo <= 0 || signo >= NSIG) {
         errno = EINVAL;
         return SIG_ERR;
     }
 
-    sigemptyset(&set);
-    sigaddset(&set, signo);
-
+    act.sa_flags = 0;
     act.sa_handler = func;
+    sigemptyset(&act.sa_mask);
 
-    if (sigaction(signo, &act, NULL) < 0)
+    if (signo == SIGALRM) {
+#ifdef SA_INTERRUPT
+        act.sa_flags |= SA_INTERRUPT;
+#endif
+    } else {
+        act.sa_flags |= SA_RESTART;
+    }
+
+    if (sigaction(signo, &act, &oact) < 0)
         return SIG_ERR;
 
-    return (Sigfunc *)0;
+    return oact.sa_handler;
 }
 
 static void

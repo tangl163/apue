@@ -54,5 +54,14 @@ void pr_exit(int status);
 
 void pr_sigmask(const char *);
 
+/**
+ * Used to synchronize a parent and child.
+ */
+void TELL_WAIT(int signo);
+void TELL_PARENT(int signo);
+void WAIT_PARENT(int signo);
+void WAIT_CHILD(int signo);
+void TELL_CHILD(int signo);
+
 #endif /* _COMMON_HEADER */
 

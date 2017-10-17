@@ -57,11 +57,11 @@ void pr_sigmask(const char *);
 /**
  * Used to synchronize a parent and child.
  */
-void TELL_WAIT(int signo);
-void TELL_PARENT(int signo);
-void WAIT_PARENT(int signo);
-void WAIT_CHILD(int signo);
-void TELL_CHILD(int signo);
+void TELL_WAIT(void);
+void TELL_PARENT(void);
+void WAIT_PARENT(void);
+void WAIT_CHILD(void);
+void TELL_CHILD(pid_t pid);
 
 #endif /* _COMMON_HEADER */
 

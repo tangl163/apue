@@ -33,39 +33,53 @@ main(int argc, char *argv[])
 static void
 myabort(void)
 {
-    struct sigaction ac, oldac;
-    sigset_t unblockset;
+    struct sigaction ac;
+    sigset_t mask;
 
-    ac.sa_flags = 0;
-    sigemptyset(&ac.sa_mask);
-    sigemptyset(&unblockset);
-    sigaddset(&unblockset, SIGABRT);
+    sigfillset(&mask);
+    sigdelset(&mask, SIGABRT);
 
-    if (sigprocmask(SIG_UNBLOCK, &unblockset, NULL) < 0)
+    /* We first block all signals other than SIGABRT. */
+    if (sigprocmask(SIG_SETMASK, &mask, NULL) < 0)
         err_sys("sigprocmask error");
-    
-    if (sigaction(SIGABRT, NULL, &oldac) < 0)
+
+    /* Fetch the old disposition. */
+    if (sigaction(SIGABRT, NULL, &ac) < 0)
         err_sys("sigaction error");
 
-    /* If SA_SIGINFO is set, SIGABRT handler would be sa_sigaction. */
-    if (oldac.sa_flags & SA_SIGINFO) {
-        ac.sa_flags |= SA_SIGINFO;
-        ac.sa_sigaction = oldac.sa_sigaction;
-
-    } else if (oldac.sa_handler == SIG_IGN) {
+    if (ac.sa_handler == SIG_IGN) {
         ac.sa_handler = SIG_DFL;
 
-    } else {
-        ac.sa_handler = oldac.sa_handler;
+    } else if (ac.sa_handler == SIG_DFL) {
+        fflush(NULL);
+        goto raise;
     }
 
     /* Install signal handler. */
     if (sigaction(SIGABRT, &ac, NULL) < 0)
         err_sys("sigaction error");
 
+raise:
+
     raise(SIGABRT);
 
-    _exit(127);
+    fflush(NULL);
+    ac.sa_flags = 0;
+    ac.sa_handler = SIG_DFL;
+
+    if (sigaction(SIGABRT, &ac, NULL) < 0)
+        err_sys("sigaction error");
+
+    /*
+     * We block all signals other than SIGABRT again
+     * in case of the signal mask being changed in the signal handler.
+     */
+    if (sigprocmask(SIG_SETMASK, &mask, NULL) < 0)
+        err_sys("sigprocmask error");
+
+    raise(SIGABRT);
+
+    exit(1);
 }
 
 static void

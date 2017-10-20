@@ -26,23 +26,31 @@ mysystem(const char *cmdstring)
     int status;
     pid_t pid;
     sigset_t mask, omask;
-    struct sigaction sig_int, sig_int_old, sig_quit, sig_quit_old;
+    struct sigaction ignore, sig_int_old, sig_quit_old;
 
     if (cmdstring == NULL)
         return 1;
 
-    sig_int.sa_flags = 0;
-    sig_quit.sa_flags = 0;
-    sig_int.sa_handler = SIG_IGN;
-    sig_quit.sa_handler = SIG_IGN;
+    ignore.sa_flags = 0;
+    ignore.sa_handler = SIG_IGN;
+    sigemptyset(&ignore.sa_mask);
     sigemptyset(&mask);
     sigaddset(&mask, SIGCHLD);
-    sigemptyset(&sig_int.sa_mask);
-    sigemptyset(&sig_quit.sa_mask);
 
-    sigaction(SIGINT, &sig_int, &sig_int_old);
-    sigaction(SIGQUIT, &sig_quit, &sig_quit_old);
-    sigprocmask(SIG_SETMASK, &mask, &omask);
+    if (sigaction(SIGINT, &ignore, &sig_int_old)) {
+        status = -1;
+        goto result;
+    }
+
+    if (sigaction(SIGQUIT, &ignore, &sig_quit_old)) {
+        status = -1;
+        goto result;
+    }
+
+    if (sigprocmask(SIG_BLOCK, &mask, &omask)) {
+        status = -1;
+        goto result;
+    }
 
     if ((pid = fork()) < 0) {
         status = -1;
@@ -52,16 +60,35 @@ mysystem(const char *cmdstring)
         sigaction(SIGQUIT, &sig_quit_old, NULL);
         sigprocmask(SIG_SETMASK, &omask, NULL);
 
-        execl("/bin/sh", "sh", "-c", cmdstring, (char *)0);
+        /*
+         * We use /bin/bash instead of /bin/sh. In my ubuntu server, /bin/sh
+         * is a link pointed to /bin/dash, which won't handle SIGQUIT.
+         */
+        execl("/bin/bash", "sh", "-c", cmdstring, (char *)0);
         _exit(127);
     }
     
-    if (waitpid(pid, &status, 0) < 0)
-        status = -1;
+    if (waitpid(pid, &status, 0) < 0) {
+        if (errno == EINTR) {
+            errno = 0;
+            status = -1;
+        }
+    }
     
-    sigaction(SIGINT, &sig_int_old, NULL);
-    sigaction(SIGQUIT, &sig_quit_old, NULL);
-    sigprocmask(SIG_SETMASK, &omask, NULL);
+    if (sigaction(SIGINT, &ignore, NULL) < 0) {
+        status = -1;
+        goto result;
+    }
+
+    if (sigaction(SIGQUIT, &ignore, NULL)) {
+        status = -1;
+        goto result;
+    }
+
+    if (sigprocmask(SIG_SETMASK, &omask, NULL))
+        status = -1;
+
+result:
 
     return status;
 }

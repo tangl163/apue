@@ -1,7 +1,7 @@
 #include "common.h"
 #include <signal.h>
 
-static void sig_int(int signo);
+static void sig_handle(int signo, siginfo_t *info, void *context);
 static int count = 0;
 
 int
@@ -11,18 +11,19 @@ main(void)
     struct sigaction act;
 
     sigemptyset(&mask);
-    sigaddset(&mask, SIGINT);
+    sigaddset(&mask, SIGRTMIN);
 
     if (sigprocmask(SIG_BLOCK, &mask, &oldmask) < 0)
         err_sys("sigprocmask error");
 
-    printf("SIGINT has blocked\n");
+    printf("SIGRTMIN has blocked\n");
 
     act.sa_flags = 0;
-    act.sa_handler = sig_int;
+    act.sa_flags |= SA_SIGINFO;
+    act.sa_sigaction = sig_handle;
     sigemptyset(&act.sa_mask);
     
-    if (sigaction(SIGINT, &act, NULL) < 0)
+    if (sigaction(SIGRTMIN, &act, NULL) < 0)
         err_sys("sigaction error");
 
     printf("signal handler has installed\n");
@@ -32,15 +33,15 @@ main(void)
     if (sigprocmask(SIG_SETMASK, &oldmask, NULL) < 0)
         err_sys("set signal mask error");
 
-    printf("SIGINT is unblocked\n");
+    printf("SIGRTMIN is unblocked\n");
 
-    printf("SIGINT be caught %d times\n", count);
+    printf("SIGRTMIN be caught %d times\n", count);
 
     exit(0);
 }
 
 static void
-sig_int(int signo)
+sig_handle(int signo, siginfo_t *info, void *context)
 {
     count++;
     printf("signal: %d caught\n", signo);

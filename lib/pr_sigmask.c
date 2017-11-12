@@ -5,6 +5,9 @@ void
 pr_sigmask(const char *str)
 {
     sigset_t oldset;
+    int errno_save;
+
+    errno_save = errno;
 
     if (sigprocmask(0, NULL, &oldset) < 0) {
         err_ret("pr_sigmask: sigpromask error");
@@ -110,5 +113,7 @@ pr_sigmask(const char *str)
     }
 
     printf("\n");
+
+    errno = errno_save;
 }
 

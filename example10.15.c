@@ -21,7 +21,7 @@ main(void)
         sleep(15);
         exit(0);
     }
-    
+
     act.sa_flags = 0;
     //act.sa_flags |= SA_RESTART;
     act.sa_handler = sig_int;

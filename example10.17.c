@@ -36,37 +36,34 @@ myabort(void)
     struct sigaction ac;
     sigset_t mask;
 
-    sigfillset(&mask);
-    sigdelset(&mask, SIGABRT);
-
-    /* We first block all signals other than SIGABRT. */
-    if (sigprocmask(SIG_SETMASK, &mask, NULL) < 0)
-        err_sys("sigprocmask error");
-
-    /* Fetch the old disposition. */
+    /* We first fetch the old disposition. */
     if (sigaction(SIGABRT, NULL, &ac) < 0)
         err_sys("sigaction error");
 
+    /* SIGABRT can't be ingored. */
     if (ac.sa_handler == SIG_IGN) {
         ac.sa_handler = SIG_DFL;
-
-    } else if (ac.sa_handler == SIG_DFL) {
-        fflush(NULL);
-        goto raise;
+        sigaction(SIGABRT, &ac, NULL);
     }
 
-    /* Install signal handler. */
-    if (sigaction(SIGABRT, &ac, NULL) < 0)
-        err_sys("sigaction error");
+    if (ac.sa_handler == SIG_DFL)
+        fflush(NULL);
 
-raise:
+    sigfillset(&mask);
+    sigdelset(&mask, SIGABRT);
+
+    /* We block all signals other than SIGABRT. */
+    if (sigprocmask(SIG_SETMASK, &mask, NULL) < 0)
+        err_sys("sigprocmask error");
 
     raise(SIGABRT);
 
+    /* Returned from signal handler. */
     fflush(NULL);
     ac.sa_flags = 0;
     ac.sa_handler = SIG_DFL;
 
+    /* Set SIGABRT handler to SIG_DFL. */
     if (sigaction(SIGABRT, &ac, NULL) < 0)
         err_sys("sigaction error");
 

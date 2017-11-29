@@ -15,14 +15,14 @@
 # define SIGRTMIN  0
 #endif
 
-#define SIG_NAME(name) {SIG##name, #name}
+#define SIG_NAME(name) { SIG##name, #name }
 
 struct sig_table {
     int signo;
     char *name;
 };
 
-static struct sig_table *sig_table_entries = {
+static struct sig_table sig_table_entries[] = {
 
 #ifdef SIGHUP
     SIG_NAME(HUP),
@@ -148,10 +148,10 @@ static struct sig_table *sig_table_entries = {
     SIG_NAME(SYS),
 #endif
 
-    {0, "EXIT"}
+    {0, "NULL"}
 };
 
-static size_t n_sigentries = sizeof(sig_table_entries) / sizeof(sig_table);
+#define N_SIG (sizeof(sig_table_entries) / sizeof(struct sig_table))
 
 static int sig2str(int signo, char *str);
 static int str2sig(const char *str, int *signop);
@@ -160,13 +160,19 @@ int
 main(int argc, char *argv[])
 {
     int signo;
+    char *p;
 
     if (argc != 2)
         err_quit("Usage: %s signo", argv[0]);
 
+    p = malloc(sizeof *p * (SIG2STR_MAX + 1));
+
     signo = atoi(argv[1]);
 
-    printf("%s\n", strsignal(signo));
+    if (sig2str(signo, p) < 0)
+        err_quit("sig2str error signo: %d", signo);
+
+    printf("%s\n", p);
 
     exit(0);
 }
@@ -174,16 +180,43 @@ main(int argc, char *argv[])
 static int
 sig2str(int signo, char *str)
 {
-    int i;
+    size_t i;
+    int base, delta;
+    char *prefix;
 
-    for (i = 0; i < n_sigentries; i++) {
+    for (i = 0; i < N_SIG; i++) {
         if (sig_table_entries[i].signo == signo) {
             strncpy(str, sig_table_entries[i].name, SIG2STR_MAX);
             return 0;
         }
     }
 
-    if (signo < SIGRTMIN || signo > SIGRTMAX)
+    if (!(signo >= SIGRTMIN && signo <= SIGRTMAX))
         return -1;
+
+    base = (SIGRTMIN + SIGRTMAX) / 2;
+
+    if (signo > base) {
+        prefix = "RTMAX";
+        delta = signo - SIGRTMAX;
+
+    } else {
+        prefix = "RTMIN";
+        delta = signo - SIGRTMIN;
+    }
+
+    if (delta)
+        snprintf(str, SIG2STR_MAX, "%s%+d", prefix, delta);
+    else
+        snprintf(str, SIG2STR_MAX, "%s", prefix);
+
+    return 0;
+}
+
+
+static int
+str2sig(const char *str, int *signop)
+{
+    return 0;
 }
 

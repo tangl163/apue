@@ -5,12 +5,16 @@ LIBARC = $(LIBDIR)/lib.a
 TARGET = a.out
 export CFLAGS = -c -Wall -Wextra -Werror -Wmissing-prototypes -Wstrict-prototypes
 
+ifdef THREAD
+PTHREAD = -pthread
+endif
+
 ifdef DEBUG
 CFLAGS += -g
 endif
 
 $(TARGET): object.o lib
-	gcc -o $@ $< $(LIBARC)
+	gcc -o $@ $(PTHREAD) $< $(LIBARC)
 
 object.o: object.c common.h
 	gcc $(CFLAGS) object.c

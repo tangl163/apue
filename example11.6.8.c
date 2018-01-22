@@ -55,12 +55,11 @@ main(int argc, char *argv[])
 static void *
 start_thread(void *arg)
 {
-    long start, end;
+    long start;
 
     start = (long)arg;
-    end = start + nperth - 1;
 
-    quicksort(num, start, end);
+    quicksort(&num[start], 0, nperth - 1);
     pthread_barrier_wait(&barrier);
 
     pthread_exit((void *)0);

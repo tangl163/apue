@@ -38,7 +38,7 @@ thread_start(void *arg)
 
     pthread_mutex_lock(&lock);
 
-    if ((err = pthread_cond_wait(&ready, &lock))  != 0) {
+    if ((err = pthread_cond_wait(&ready, &lock)) != 0) {
         printf("pthread_cond_wait error: %s\n", strerror(err));
         pthread_exit((void *)0);
     }

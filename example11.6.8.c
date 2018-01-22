@@ -4,12 +4,12 @@
 #define N_NUM 8000000L
 
 static void *start_thread(void *arg);
-static void swap(long *v, size_t i, size_t j);
-static void quicksort(long *v, size_t left, size_t right);
+static void swap(long *v, long i, long j);
+static void quicksort(long *v, long left, long right);
 static void merge(void);
 
-static size_t nthread;    /* number of threads */
-static size_t nperth;     /* number to sort per thread */
+static long nthread;    /* number of threads */
+static long nperth;     /* number to sort per thread */
 static pthread_barrier_t barrier;
 
 static long num[N_NUM];
@@ -19,13 +19,13 @@ int
 main(int argc, char *argv[])
 {
     int err;
-    size_t i;
+    long i;
     pthread_t tid;
 
     if (argc != 2)
         err_quit("Usage: %s <nthread>", argv[0]);
 
-    nthread = (size_t)atol(argv[1]);
+    nthread = (long)atol(argv[1]);
     nperth = N_NUM / nthread;
 
     for (i = 0; i < N_NUM; i++)
@@ -48,16 +48,16 @@ main(int argc, char *argv[])
     pthread_barrier_wait(&barrier);
 
     merge();
-    
+
     exit(0);
 }
 
 static void *
 start_thread(void *arg)
 {
-    size_t start, end;
+    long start, end;
 
-    start = (size_t)arg;
+    start = (long)arg;
     end = start + nperth - 1;
 
     quicksort(num, start, end);
@@ -67,9 +67,9 @@ start_thread(void *arg)
 }
 
 static void
-quicksort(long *v, size_t left, size_t right)
+quicksort(long *v, long left, long right)
 {
-    size_t i, last;
+    long i, last;
 
     if (left >= right)
         return;
@@ -88,7 +88,7 @@ quicksort(long *v, size_t left, size_t right)
 }
 
 static void
-swap(long *v, size_t i, size_t j)
+swap(long *v, long i, long j)
 {
     long tmp;
 
@@ -100,8 +100,8 @@ swap(long *v, size_t i, size_t j)
 static void
 merge(void)
 {
-    size_t i, j;
-    size_t index, minbucket;
+    long i, j;
+    long index, minbucket;
     long bucket[nthread], minval;
 
     for (i = 0; i < nthread; i++)

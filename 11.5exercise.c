@@ -64,10 +64,8 @@ my_barrier_init(struct my_barrier_t *barrier, unsigned int count)
     if ((err = pthread_mutex_init(&barrier->b_lock, NULL)) != 0)
         return err;
 
-    if ((err = pthread_cond_init(&barrier->b_cond, NULL)) != 0) {
-        pthread_mutex_unlock(&barrier->b_lock);
+    if ((err = pthread_cond_init(&barrier->b_cond, NULL)) != 0)
         return err;
-    }
 
     barrier->b_count = count;
     barrier->b_nwait = 0;

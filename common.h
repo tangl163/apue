@@ -25,7 +25,7 @@
  * Self-defined type.
  */
 enum boolean {
-    FALSE,
+    FALSE = 0,
     TRUE
 };
 
@@ -39,6 +39,8 @@ void err_quit(const char *, ...);
 void err_ret(const char *, ...);
 
 void err_sys(const char *, ...);
+
+void err_exit(int, const char *, ...);
 
 long open_max(void);
 

@@ -1,7 +1,10 @@
 #include "common.h"
+#include <time.h>
+#include <sys/time.h>
 #include <pthread.h>
 
 static void *thread_start(void *arg);
+
 static pthread_cond_t ready = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
@@ -19,7 +22,7 @@ main(void)
     sleep(1);
 
     pthread_mutex_lock(&lock);
-    pthread_cond_signal(&ready);
+    sleep(3);
     pthread_mutex_unlock(&lock);
 
     if ((err = pthread_join(tid, NULL)) != 0) {
@@ -35,10 +38,15 @@ static void *
 thread_start(void *arg)
 {
     int err;
+    struct timespec ts;
+
+    clock_gettime(CLOCK_REALTIME, &ts);
+    ts.tv_sec += 2;
 
     pthread_mutex_lock(&lock);
 
-    if ((err = pthread_cond_wait(&ready, &lock)) != 0) {
+    if ((err = pthread_cond_timedwait(&ready, &lock, &ts)) != 0) {
+        pthread_mutex_unlock(&lock);
         printf("pthread_cond_wait error: %s\n", strerror(err));
         pthread_exit((void *)0);
     }

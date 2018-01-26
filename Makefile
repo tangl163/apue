@@ -13,8 +13,12 @@ ifdef DEBUG
 CFLAGS += -g
 endif
 
+ifdef LDFLAGS
+LDFLAGS += -lrt
+endif
+
 $(TARGET): object.o lib
-	gcc -o $@ $(PTHREAD) $< $(LIBARC)
+	gcc -o $@ $(PTHREAD) $(LDFLAGS) $< $(LIBARC)
 
 object.o: object.c common.h
 	gcc $(CFLAGS) object.c

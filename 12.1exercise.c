@@ -9,6 +9,10 @@ static void * start_rt(void *arg);
 static pthread_mutex_t lock1 = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t lock2 = PTHREAD_MUTEX_INITIALIZER;
 
+/**
+ * 12.1 Run the program in Figure12.17 on a Linux system, but redirect
+ * the output into a ﬁle. Explain the results.
+ */
 int
 main(void)
 {

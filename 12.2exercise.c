@@ -21,10 +21,11 @@ main(int argc, char *argv[])
 {
     int i;
 
-    if (argc != 2)
+    if (argc < 2)
         err_quit("Usage: %s <envstring>", argv[0]);
 
-    putenv_r(argv[1]);
+    for (i = 1; argv[i]; i++)
+        putenv_r(argv[i]);
 
     for (i = 0; environ[i]; i++)
         printf("%s\n", environ[i]);
@@ -56,7 +57,7 @@ copyoldenv(void)
     for (i = 0; environ[i]; i++) {
 
         len = strlen(environ[i]);
-        str = malloc(sizeof(*str) * (len + 1));
+        str = malloc(sizeof *str * (len + 1));
         if (str == NULL)
             err_sys("malloc error");
 
@@ -76,13 +77,16 @@ putenv_r(char *str)
     int len, nlen, i;
     char *ptr, *edge;
 
+    ptr = edge = NULL;
     pthread_once(&initflag, thread_init);
 
+    /* we block all signals to make sure it won't be interrupted */
     if (pthread_sigmask(SIG_BLOCK, &mask, &oldmask) != 0) {
         err_msg("pthread_sigmask error");
         return -1;
     }
 
+    /* using a mutex to make it thread-safe */
     pthread_mutex_lock(&env_lock);
 
     len = strlen(str);
@@ -95,19 +99,23 @@ putenv_r(char *str)
         nlen = edge - str;
 
         for (i = 0; environ[i]; i++) {
-            if (strncmp(str, environ[i], len) == 0
-                && environ[i][len] == '=') {
+            if (strncmp(str, environ[i], nlen) == 0
+                && environ[i][nlen] == '=') {
                 ptr = environ[i];
                 break;
             }
         }
 
+        /**
+         * If it exists in the environ, we just replace it with a new string.
+         * Otherwise, we need to append it at the end of environ.
+         */
         if (ptr) {
             environ[i] = str;
             free(ptr);
             goto success;
         } else {
-            environ = realloc(environ, i + 2);
+            environ = realloc(environ, sizeof *environ * (i + 1));
             if (environ == NULL) {
                 err_msg("realloc failed");
                 goto fail;
@@ -127,6 +135,7 @@ putenv_r(char *str)
             }
         }
 
+        /* In this case, we delete an env */
         if (ptr) {
             do {
                 environ[i] = environ[i+1];

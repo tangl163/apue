@@ -101,7 +101,7 @@ common_output(int errnoflag, int error, const char *format, va_list ap)
 
     if (errnoflag) {
         length = strlen(buf);
-        snprintf(buf + length, MAXLINE - length, ": %s", strerror(error));
+        snprintf(buf + length, MAXLINE - length - 1, ": %s", strerror(error));
     }
 
     strcat(buf, "\n");

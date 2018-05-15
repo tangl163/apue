@@ -3,7 +3,8 @@
 
 #define STAY_OPEN 1
 
-int main(void)
+int
+main(void)
 {
     struct hostent *ptr;
 

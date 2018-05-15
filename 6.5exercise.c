@@ -8,7 +8,8 @@
  * strftime, so that it looks like the default output from date(1).
  * Set the TZ environment variable to different values and see what happens.
  */
-int main(void)
+int
+main(void)
 {
     time_t t;
     struct tm *tp;

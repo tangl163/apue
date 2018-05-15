@@ -5,7 +5,8 @@
  * Figure5.5, but use a MAXLINE of 4. What happens if you copy lines that exceed this length?
  * Explain what is happening.
  */
-int main(void)
+int
+main(void)
 {
     char buf[4];
 

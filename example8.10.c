@@ -4,7 +4,8 @@
  * When a process with super privileges `exec` a `setuid`
  * executable (doesn't belong to `root`), it will lose the super priveleges.
  */
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
     if (argc != 2)
         err_quit("Usage: %s <filenam>", argv[0]);

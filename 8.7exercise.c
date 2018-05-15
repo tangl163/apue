@@ -1,6 +1,7 @@
 #include "common.h"
 
-int main(void)
+int
+main(void)
 {
     DIR *dp;
     struct dirent *dirp;

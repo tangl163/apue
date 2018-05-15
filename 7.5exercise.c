@@ -3,7 +3,8 @@
 typedef void Exitfunc(void);
 static Exitfunc exitfunc;
 
-int main(void)
+int
+main(void)
 {
     if (atexit(exitfunc) != 0)
         err_sys("install exit function error");
@@ -11,7 +12,8 @@ int main(void)
     exit(0);
 }
 
-void exitfunc(void)
+static void
+exitfunc(void)
 {
     printf("Hello\n");
 }

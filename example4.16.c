@@ -1,7 +1,7 @@
 #include "common.h"
 
-
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
     if (argc != 2)
         err_quit("Usage: %s <filename>", argv[0]);

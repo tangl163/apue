@@ -7,7 +7,8 @@
  * 4.16 Does the UNIX System have a fundamental limitation on the depth of a directory tree? To
  * ﬁnd out, write a program that creates a directory and then changes to that directory, in a loop. 
  */
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
     char *p;
     size_t i, size;

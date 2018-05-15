@@ -2,7 +2,7 @@
 #include <signal.h>
 #include <sys/wait.h>
 
-void sig_trap(int);
+static void sig_trap(int);
 
 int
 main(void)
@@ -33,7 +33,7 @@ main(void)
     exit(0);
 }
 
-void
+static void
 sig_trap(int signo)
 {
     printf("signo: %d caught\n", signo);

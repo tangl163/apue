@@ -3,7 +3,8 @@
 
 int globvar = 10;
 
-int main(void)
+int
+main(void)
 {
     pid_t pid;
     int var, status;

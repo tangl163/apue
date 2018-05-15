@@ -4,7 +4,8 @@
  * 8.6 Write a program that creates a zombie, and then call system
  * to execute the ps(1) command to verify that the process is a zombie.
  */
-int main(void)
+int
+main(void)
 {
     pid_t pid;
 

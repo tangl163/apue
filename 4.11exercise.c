@@ -13,8 +13,8 @@ static int n_sfile;    // number of socket count.
 static int n_lfile;    // number of symbolic link count.
 static int n_tfile;    // number of total file count.
 
-
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
     if (argc != 2)
         err_quit("Usage: %s <pathname>", argv[0]);
@@ -48,11 +48,11 @@ static void myftw(char *pathname)
     dopath();
 }
 
-
 /**
  * Dealing file and directory recursively. 
  */
-static void dopath()
+static void
+dopath()
 {
     DIR *dp;
     struct stat stbuf;
@@ -99,32 +99,34 @@ static void dopath()
 /**
  * file type counter.
  */
-static void fcategorise(struct stat *stbuf)
+static void
+fcategorise(struct stat *stbuf)
 {
     switch (stbuf->st_mode & S_IFMT) {
-        case S_IFREG:
-            n_rfile++;
-            break;
-        case S_IFDIR:
-            n_dfile++;
-            break;
-        case S_IFBLK:
-            n_bfile++;
-            break;
-        case S_IFCHR:
-            n_cfile++;
-            break;
-        case S_IFIFO:
-            n_pfile++;
-            break;
-        case S_IFSOCK:
-            n_sfile++;
-            break;
-        case S_IFLNK:
-            n_lfile++;
-            break;
-        default:
-            err_msg("Unknown file");
+    case S_IFREG:
+        n_rfile++;
+        break;
+    case S_IFDIR:
+        n_dfile++;
+        break;
+    case S_IFBLK:
+        n_bfile++;
+        break;
+    case S_IFCHR:
+        n_cfile++;
+        break;
+    case S_IFIFO:
+        n_pfile++;
+        break;
+    case S_IFSOCK:
+        n_sfile++;
+        break;
+    case S_IFLNK:
+        n_lfile++;
+        break;
+    default:
+        err_msg("Unknown file");
+        break;
     }
 }
 

@@ -1,8 +1,9 @@
 #include "common.h"
 
-void make_temp(char *);
+static void make_temp(char *);
 
-int main(void)
+int
+main(void)
 {
     char template1[] = "/tmp/tempfile1XXXXXX";
     char *template2 = "/tmp/tempfile2XXXXXX";
@@ -16,7 +17,8 @@ int main(void)
     exit(0);
 }
 
-void make_temp(char *template)
+static void
+make_temp(char *template)
 {
     int fd;
     struct stat statbuf;

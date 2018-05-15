@@ -2,12 +2,12 @@
 
 extern char **environ;
 
-int main(void)
+int
+main(void)
 {
     char **p;
     
     p = environ;
-
     while (*p)
         printf("%s\n", *p++);
 

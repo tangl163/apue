@@ -1,7 +1,8 @@
 #include "common.h"
 #include <sys/resource.h>
 
-int main(void)
+int
+main(void)
 {
     struct rlimit rlptr;
 

@@ -1,7 +1,8 @@
 #include "common.h"
 #include <signal.h>
 
-int main(void)
+int
+main(void)
 {
     sigset_t set1, set2;
 

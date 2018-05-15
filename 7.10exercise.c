@@ -2,7 +2,8 @@
 
 static int f1(int);
 
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
     int val;
 
@@ -16,7 +17,8 @@ int main(int argc, char *argv[])
     exit(0);
 }
 
-static int f1(int val)
+static int
+f1(int val)
 {
     int num = 0;
     int *ptr = &num;

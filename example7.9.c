@@ -18,7 +18,8 @@ extern char **environ;
  */
 static int moved = FALSE;
 
-int main(void)
+int
+main(void)
 {
     char buf[MAXLINE];
     char name[MAXLINE];
@@ -44,8 +45,6 @@ int main(void)
         }
 
         printf("%s\n", mygetenv(name));
-        //exit_handle();
-        //printf("%s\n", environ[20]);
 
         printf("%%"); 
     }
@@ -56,7 +55,8 @@ int main(void)
     exit(0);
 }
 
-static char *mygetenv(char *name)
+static char *
+mygetenv(char *name)
 {
     unsigned int i, j;
     unsigned int len;
@@ -80,7 +80,8 @@ static char *mygetenv(char *name)
     return NULL;
 }
 
-static int modifyenv(char *env, char *name, char *value)
+static int
+modifyenv(char *env, char *name, char *value)
 {
     unsigned int len;
     char *p;
@@ -103,7 +104,8 @@ static int modifyenv(char *env, char *name, char *value)
     return 0;
 }
 
-static int addenv(char *name, char *value)
+static int
+addenv(char *name, char *value)
 {
     int len;
     char **p;
@@ -146,7 +148,8 @@ static int addenv(char *name, char *value)
     return 0;
 }
 
-static void copyenvlist(char **dest)
+static void
+copyenvlist(char **dest)
 {
     char **source;
     char **p;
@@ -165,7 +168,8 @@ static void copyenvlist(char **dest)
     moved = TRUE;
 }
 
-static char *envcpy(char *name, char *value)
+static char *
+envcpy(char *name, char *value)
 {
     char *p, *pn, *pv;
     char *temp;
@@ -193,7 +197,8 @@ static char *envcpy(char *name, char *value)
     return p;
 }
 
-static void replaceenv(char *search, char *replace)
+static void
+replaceenv(char *search, char *replace)
 {
     char **p = environ;
 
@@ -210,7 +215,8 @@ static void replaceenv(char *search, char *replace)
     }
 }
 
-static int explode(char *source, char *name, char *value)
+static int
+explode(char *source, char *name, char *value)
 {
     char *p;
     int c;
@@ -245,7 +251,8 @@ static int explode(char *source, char *name, char *value)
 /**
  * Return the length of environ list including a ternimating `NULL` byte.
  */
-static int envrionlen(void)
+static int
+envrionlen(void)
 {
     char **p;
     int count = 1;
@@ -258,7 +265,8 @@ static int envrionlen(void)
     return count;
 }
 
-static void exit_handle(void)
+static void
+exit_handle(void)
 {
     char **p;
 

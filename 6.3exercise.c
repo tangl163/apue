@@ -6,7 +6,8 @@
  * in the utsname structure. Comparethe output to the output from
  * the uname(1) command.
  */
-int main(void)
+int
+main(void)
 {
     struct utsname name;
 

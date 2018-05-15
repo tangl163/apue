@@ -7,7 +7,8 @@ static void check_ct(char *s);
  * 9.2 Write a small program that calls fork and has the child create a new session.
  * Verify that the child becomes a process group leader and that the child no longer has a controlling terminal.
  */
-int main(void)
+int
+main(void)
 {
     pid_t pid;
 

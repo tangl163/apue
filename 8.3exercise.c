@@ -2,13 +2,14 @@
 #include <signal.h>
 #include <sys/wait.h>
 
-void print_exit(siginfo_t *infop);
+static void print_exit(siginfo_t *infop);
 
 /**
  * 8.3 Rewrite the program in Figure 8.6 to use waitid instead of wait.
  * Instead of calling pr_exit, determine the equivalent information from the siginfo structure.
  */
-int main(void)
+int
+main(void)
 {
     pid_t pid;
     int status;
@@ -57,28 +58,29 @@ int main(void)
     exit(0);
 }
 
-void print_exit(siginfo_t *infop)
+static void
+print_exit(siginfo_t *infop)
 {
     switch (infop->si_code) {
-        case CLD_EXITED:
-            printf("normally exited: %d\n", infop->si_status);
-            break;
+    case CLD_EXITED:
+        printf("normally exited: %d\n", infop->si_status);
+        break;
 
-        case CLD_KILLED:
-            printf("abnormally exited. signal number: %d\n", infop->si_status);
-            break;
+    case CLD_KILLED:
+        printf("abnormally exited. signal number: %d\n", infop->si_status);
+        break;
 
-        case CLD_DUMPED:
-            printf("abnormally exited. signal number: %d (core file generated)\n", infop->si_status);
-            break;
+    case CLD_DUMPED:
+        printf("abnormally exited. signal number: %d (core file generated)\n", infop->si_status);
+        break;
 
-        case CLD_STOPPED:
-            printf("child has stopped, signal number: %d\n", infop->si_status);
-            break;
+    case CLD_STOPPED:
+        printf("child has stopped, signal number: %d\n", infop->si_status);
+        break;
 
-        default:
-            // @TODO
-            break;
+    default:
+        // @TODO
+        break;
     }
 }
 

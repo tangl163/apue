@@ -2,11 +2,12 @@
 
 /* a local implemention of dup2 */
 
-int local_dup2(int fd, int fd2);
+static int local_dup2(int fd, int fd2);
 
 extern long open_max(void);
 
-int main(void)
+int
+main(void)
 {
     int fd;
 
@@ -20,7 +21,8 @@ int main(void)
 }
 
 
-int local_dup2(int fd, int fd2)
+static int
+local_dup2(int fd, int fd2)
 {
     long max_fileno;
     int temp, i = 0;

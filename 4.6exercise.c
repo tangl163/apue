@@ -6,14 +6,15 @@
 #define BUFFSIZE 4096
 #define RWRWRW (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH)
 
-int write2fd(int fd, char *buf, int nbytes);
-int llseek(int fd, int offset, int whence);
+static int write2fd(int fd, char *buf, int nbytes);
+static int llseek(int fd, int offset, int whence);
 
 /**
  * 4.6. Write a utility like cp(1) that copies a ﬁle containing holes,
  * without writing the bytes of 0 to the output ﬁle.
  */
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
     int n, i, j;
     int fd1, fd2;
@@ -33,6 +34,7 @@ int main(int argc, char *argv[])
     while ((n = read(fd1, rdbuf, BUFFSIZE)) > 0) {
         flag = OUT;    // first we are out of hole.
         offset = 0;    // initial file hole offset.
+
         for (i = 0, j = 0; i < n; i++) {
             if (rdbuf[i] != '\0') {
                 if (flag == OUT && offset > 0 && llseek(fd2, offset, SEEK_CUR))
@@ -64,7 +66,8 @@ int main(int argc, char *argv[])
 /**
  * Another version of `write`. It's intended to avoid nesting too deep of controlling clause.
  */
-int write2fd(int fd, char *buf, int nbytes)
+static int
+write2fd(int fd, char *buf, int nbytes)
 {
     if (write(fd, buf, nbytes) != nbytes) {
         err_sys("write error");
@@ -76,7 +79,8 @@ int write2fd(int fd, char *buf, int nbytes)
 /**
  * Another version of `lseek`. It's intended to avoid nesting too deep of controlling clause.
  */
-int llseek(int fd, int offset, int whence)
+static int
+llseek(int fd, int offset, int whence)
 {
     if (lseek(fd, offset, whence) == -1)
         err_sys("lseek error");

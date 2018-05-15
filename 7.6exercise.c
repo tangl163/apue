@@ -5,7 +5,8 @@
 static void print_i(long *, int);
 static void print_ptr(char **, int);
 
-int main(void)
+int
+main(void)
 {
     long *ptr;
     char **pc;
@@ -23,7 +24,8 @@ int main(void)
     exit(0);
 }
 
-static void print_i(long *p, int len)
+static void
+print_i(long *p, int len)
 {
     while (len--)
         printf("%ld ", *p);
@@ -31,7 +33,8 @@ static void print_i(long *p, int len)
     printf("\n");
 }
 
-static void print_ptr(char **p, int len)
+static void
+print_ptr(char **p, int len)
 {
     while (len--)
         printf("%p ", *p);

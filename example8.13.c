@@ -1,9 +1,10 @@
 #include "common.h"
 #include <sys/wait.h>
 
-int mysystem(const char *);
+static int mysystem(const char *);
 
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
     int ret;
 
@@ -18,7 +19,8 @@ int main(int argc, char *argv[])
     exit(ret);
 }
 
-int mysystem(const char *cmdstring)
+static int
+mysystem(const char *cmdstring)
 {
     pid_t pid;
     int status;

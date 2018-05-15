@@ -5,7 +5,8 @@
  * 6.1 If the system uses a shadow ﬁle and we need
  * to obtain the encrypted password, how do we do so?
  */
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
     struct spwd *ptr;
 

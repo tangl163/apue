@@ -5,7 +5,8 @@
 /**
  * 4.13 How can you set only one of the two time values with the utimes function?
  */
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
     time_t now;
     struct stat statbuf;

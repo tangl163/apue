@@ -1,6 +1,6 @@
 #include "common.h"
 
-pid_t callvfork(void);
+static pid_t callvfork(void);
 
 /**
  * 8.2 Recall the typical arrangement of memory in Figure 7.6.
@@ -11,7 +11,8 @@ pid_t callvfork(void);
  * than main and the child does a return from this function after
  * the vfork? Write a test program to verify this, and draw a picture of what’s happening.
  */
-int main(void)
+int
+main(void)
 {
     pid_t pid;
 
@@ -22,7 +23,7 @@ int main(void)
     exit(0);
 }
 
-pid_t
+static pid_t
 callvfork(void)
 {
     pid_t pid;

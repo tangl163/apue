@@ -1,8 +1,9 @@
 #include "common.h"
 
-void printde(char *, DIR *dirp);
+static void printde(char *, DIR *dirp);
 
-int main(void)
+int
+main(void)
 {
     pid_t pid;
     DIR *dirp;
@@ -24,7 +25,7 @@ int main(void)
     /* fork a child process to execute rmdir. */
     if ((pid = fork()) < 0) {
         err_sys("fork error");
-    } else if (pid == 0) {    // child
+    } else if (pid == 0) {
         if (rmdir("test") < 0)
             err_sys("rmdir error");
 
@@ -42,6 +43,7 @@ int main(void)
 
     if (stat("test", &statbuf) < 0)
         err_sys("stat error");
+
     printf("After remove: %d\n", statbuf.st_size);
 
     closedir(dirp);
@@ -53,9 +55,11 @@ int main(void)
 /**
  * print directory entries.
  */
-void printde(char *msg, DIR *dirp)
+static void
+printde(char *msg, DIR *dirp)
 {
     struct dirent *dir;
+
     while ((dir = readdir(dirp)) != NULL) {
         printf("%s: %s\n", msg, dir->d_name);
     }

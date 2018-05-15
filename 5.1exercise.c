@@ -6,7 +6,8 @@ static void mysetbuf(FILE *fp, char * const buf);
 /**
  * 5.1 Implement setbuf using setvbuf.
  */
-int main(void)
+int
+main(void)
 {
     char buf[BUFSIZ]; 
 
@@ -21,7 +22,8 @@ int main(void)
     exit(0);
 }
 
-static void mysetbuf(FILE *fp, char *const buf)
+static void
+mysetbuf(FILE *fp, char *const buf)
 {
     int fd;
     int buftype, bufsize;
@@ -38,7 +40,6 @@ static void mysetbuf(FILE *fp, char *const buf)
     if (isatty(fd)) {
         buftype = _IOLBF;
         bufsize = BUFSIZ;
-
     } else {
         buftype = _IOFBF;
         bufsize = BUFSIZ;
@@ -50,7 +51,8 @@ setbuf:
         err_sys("setvbuf error");
 }
 
-static void pr_stdio(const char *name, FILE *fp)
+static void
+pr_stdio(const char *name, FILE *fp)
 {
     printf("stream = %s, ", name);
 
@@ -59,7 +61,6 @@ static void pr_stdio(const char *name, FILE *fp)
 
     else if (fp->_flags & _IOLBF)
         printf("line buffered\n");
-
     else
         printf("unbuffered\n");
 }

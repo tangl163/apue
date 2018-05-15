@@ -1,7 +1,7 @@
 #include "common.h"
 #include <signal.h>
 
-void sig_quit(int);
+static void sig_quit(int);
 
 int
 main(void)
@@ -25,7 +25,8 @@ main(void)
     exit(0);
 }
 
-void sig_quit(int signo)
+static void
+sig_quit(int signo)
 {
     printf("signal %d caught\n", signo);
 }

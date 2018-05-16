@@ -5,11 +5,13 @@
 int
 main(void)
 {
-    int nread, nwrite;
+    int fd, nread, nwrite;
     char buf[BUFSIZE];
     char *ptr;
 
-    set_fl(STDOUT_FILENO, O_NONBLOCK);
+    fd = open("/dev/fd/1", O_WRONLY | O_NONBLOCK);
+    if (fd < 0)
+        err_sys("open for /dev/fd/1 error");
 
     nread = read(STDIN_FILENO, buf, BUFSIZE);
     if (nread < 0)
@@ -18,16 +20,15 @@ main(void)
     ptr = buf;
 
     while (nread > 0) {
-        nwrite = write(STDOUT_FILENO, ptr, nread);
+        errno = 0;
+        nwrite = write(fd, ptr, nread);
         fprintf(stderr, "nwrite: %d. errno: %d\n", nwrite, errno);
 
-        if (nwrite) {
+        if (nwrite > 0) {
             nread -= nwrite;
             ptr += nwrite;
         }
     }
-
-    clear_fl(STDOUT_FILENO, O_NONBLOCK);
 
     exit(0);
 }

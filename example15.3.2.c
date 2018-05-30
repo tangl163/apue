@@ -38,29 +38,48 @@ main(int argc, char *argv[])
     exit(0);
 }
 
-static pid_t pid;
-static int fd[2];
+static pid_t *fd2pid = NULL;
+static long openmax = 0;
 
 static FILE *
 mypopen(const char *cmdstring, const char *type)
 {
-    int otype;
     FILE *fp;
+    pid_t pid;
+    int i, otype, fd[2];
 
-    if (cmdstring == NULL || type == NULL
-        || (strcmp(type, "r") != 0 && strcmp(type, "w") != 0)) {
+    if (type == NULL || (type[0] != 'r' && type[0] != 'w') || type[1] != 0) {
         fprintf(stderr, "Invalid arguments\n");
         errno = EINVAL;
         return NULL;
     }
 
-    if (strcmp(type, "r") == 0)
+    if (!openmax)
+        openmax = open_max();
+
+    if (fd2pid == NULL) {
+        fd2pid = calloc(openmax, sizeof(pid_t));
+        if (fd2pid == NULL) {
+            fprintf(stderr, "malloc error\n");
+            return NULL;
+        }
+    }
+
+    if (type[0] == 'r')
         otype = POPEN_READ;
     else
         otype = POPEN_WRITE;
 
     if (pipe(fd) < 0) {
         fprintf(stderr, "pipe error\n");
+        return NULL;
+    }
+
+    if (fd[0] >= openmax || fd[1] >= openmax) {
+        fprintf(stderr, "Too many open files\n");
+        close(fd[0]);
+        close(fd[1]);
+        errno = EMFILE;
         return NULL;
     }
 
@@ -86,6 +105,10 @@ mypopen(const char *cmdstring, const char *type)
             }
         }
 
+        for (i = 0; i < openmax; i++)
+            if (fd2pid[i] > 0)
+                close(i);
+
         execl("/bin/bash", "sh", "-c", cmdstring, (char *)0);
         fprintf(stderr, "execl error\n");
         _exit(127);
@@ -93,18 +116,16 @@ mypopen(const char *cmdstring, const char *type)
 
     if (otype == POPEN_READ) {
         close(fd[1]);
-
         fp = fdopen(fd[0], type);
-        if (fp == NULL)
-            fprintf(stderr, "fdopen error\n");
-
     } else {
         close(fd[0]);
-
         fp = fdopen(fd[1], type);
-        if (fp == NULL)
-            fprintf(stderr, "fdopen error\n");
     }
+
+    if (fp == NULL)
+        fprintf(stderr, "fdopen error\n");
+    else
+        fd2pid[fileno(fp)] = pid;
 
     return fp;
 }
@@ -112,9 +133,31 @@ mypopen(const char *cmdstring, const char *type)
 static int
 mypclose(FILE *fp)
 {
+    int fd;
+    pid_t pid;
     int status;
 
+    if (fd2pid == NULL) {
+        fprintf(stderr, "popen must be called before calling pclose\n");
+        errno = EINVAL;
+        return -1;
+    }
+
+    fd = fileno(fp);
+    if (fd < 0) {
+        fprintf(stderr, "filno error\n");
+        return -1;
+    }
+
+    pid = fd2pid[fd];
+    if (pid == 0) {
+        fprintf(stderr, "Invalid argument\n");
+        errno = EINVAL;
+        return -1;
+    }
+
     fclose(fp);
+    fd2pid[fd] = 0;
 
     if (waitpid(pid, &status, 0) != pid) {
         fprintf(stderr, "waitpid error\n");

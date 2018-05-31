@@ -159,9 +159,11 @@ mypclose(FILE *fp)
     fclose(fp);
     fd2pid[fd] = 0;
 
-    if (waitpid(pid, &status, 0) != pid) {
-        fprintf(stderr, "waitpid error\n");
-        return -1;
+    while (waitpid(pid, &status, 0) < 0) {
+        if (errno != EINTR) {
+            fprintf(stderr, "waitpid error\n");
+            return -1;
+        }
     }
 
     return status;

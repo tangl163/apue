@@ -9,9 +9,17 @@ main(void)
 {
     int status;
     pid_t pid;
+    struct sigaction act;
 
-    if (signal(SIGINT, sig_trap) == SIG_ERR)
-        err_sys("install signal for SIGINT error");
+    act.sa_handler = sig_trap;
+    sigemptyset(&act.sa_mask);
+    act.sa_flags = SA_INTERRUPT;
+
+    if (sigaction(SIGINT, &act, NULL) < 0)
+        err_sys("sigaction error");
+
+    // if (signal(SIGINT, sig_trap) == SIG_ERR)
+    //     err_sys("install signal for SIGINT error");
 
     if ((pid = fork()) < 0) {
         err_sys("fork error");

@@ -54,10 +54,8 @@ mypopen(const char *cmdstring, const char *type)
         return NULL;
     }
 
-    if (!openmax)
-        openmax = open_max();
-
     if (fd2pid == NULL) {
+        openmax = open_max();
         fd2pid = calloc(openmax, sizeof(pid_t));
         if (fd2pid == NULL) {
             fprintf(stderr, "malloc error\n");

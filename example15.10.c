@@ -86,7 +86,7 @@ my_mutex_init(my_mutex_lock_t *mutex, int shared)
         return -1;
     }
 
-    if (sem_init(mutex->semp, shared, SEM_TYPE_BIBARY) < 0) {
+    if (sem_init(mutex->semp, shared, SEM_TYPE_BIBARY) != 0) {
         err_msg("sem_init error");
         return -1;
     }

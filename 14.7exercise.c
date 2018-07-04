@@ -1,55 +1,28 @@
 #include "common.h"
 #include <sys/wait.h>
 
-#define FIFO_PATH "/tmp/tmp_fifo"
-
+/**
+ * 14.7 Determine the capacity of a pipe using nonblocking writes.
+ * Compare this value with the value of PIPE_BUF from Chapter 2.
+ */
 int
 main(void)
 {
-    int n, fd;
-    pid_t pid;
+    int n, fd[2];
     long capacity;
 
-    if (mkfifo(FIFO_PATH, S_IRUSR | S_IWUSR) != 0)
-        err_sys("mkfifo error");
+    if (pipe(fd) < 0)
+        err_sys("pipe error");
 
-    TELL_WAIT();
+    set_fl(fd[1], O_NONBLOCK);
 
-    pid = fork();
-    if (pid < 0) {
-        err_sys("fork error");
-    } else if (pid == 0) {
-        fd = open(FIFO_PATH, O_RDONLY | O_NONBLOCK);
-        if (fd < 0)
-            err_sys("Child: open error");
-
-        TELL_PARENT();
-        WAIT_PARENT();
-        exit(0);
-    } else {
-
-        WAIT_CHILD();
-        fd = open(FIFO_PATH, O_WRONLY | O_NONBLOCK);
-        if (fd < 0)
-            err_sys("Parent: open error");
-
-        for (capacity = 0; /* void */ ; capacity++) {
-            n = write(fd, "a", 1);
-            if (n != 1) {
-                printf("write return %d\n", n);
-                break;
-            }
+    for (capacity = 0; /* void */ ; capacity++) {
+        n = write(fd[1], "a", 1);
+        if (n != 1) {
+            printf("write return %d\n", n);
+            break;
         }
-
-        TELL_CHILD(pid);
     }
-
-    while (waitpid(pid, NULL, 0) < 0) {
-        if (errno != EINTR)
-            err_sys("waitpid error");
-    }
-
-    unlink(FIFO_PATH);
 
     printf("Capacity: %ld\n", capacity);
     printf("PIPE_BUF: %d\n", PIPE_BUF);

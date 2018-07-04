@@ -3,6 +3,14 @@
 
 static void rot13_translate(char *str, long len);
 
+/**
+ * 14.8 Rewrite the program in Figure14.21 to make it a ﬁlter: read
+ * from the standard input and write to the standard output, but use
+ * the asynchronous I/O interfaces. What must you change to make it
+ * work properly? Keep in mind that you should get the same results
+ * whether the standard output is attached to a terminal, a pipe, or
+ * a regular ﬁle.
+ */
 int
 main(void)
 {
@@ -56,6 +64,7 @@ main(void)
         r_offset += nread;
 
         rot13_translate(buf, nread);
+        aiobuf[1].aio_nbytes = nread;
 
         if (aio_write(&aiobuf[1]) == -1)
             err_sys("aio_write error");
@@ -75,8 +84,8 @@ main(void)
         if (nwrite == -1)
             err_sys("aio_return error");
 
-        //if (nwrite != aiobuf[1].aio_nbytes)
-        //    err_quit("short write (%d/%d)", nwrite, aiobuf[1].aio_nbytes);
+        if ((size_t)nwrite != aiobuf[1].aio_nbytes)
+            err_quit("short write (%d/%d)", nwrite, aiobuf[1].aio_nbytes);
 
         w_offset += nwrite;
     }

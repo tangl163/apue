@@ -1,30 +1,34 @@
 # Local makefile.
 
-LIBDIR = ./lib
-LIBARC = $(LIBDIR)/lib.a
+ROOT = .
+include $(ROOT)/Make.defines
 TARGET = a.out
-export CFLAGS = -c -Wall -Wextra -Werror -Wmissing-prototypes -Wstrict-prototypes
 
 ifdef THREAD
 PTHREAD = -pthread
 endif
 
 ifdef DEBUG
-CFLAGS += -g
+export DEBUG = -g
 endif
 
-$(TARGET): object.o lib
-	gcc -o $@ $< $(LIBARC) $(PTHREAD) $(LDFLAGS)
+$(TARGET): object.o lib bin
+	$(CC) -o $@ $< $(LIBARC) $(PTHREAD) $(LDFLAGS)
 
-object.o: object.c common.h
-	gcc $(CFLAGS) object.c
+object.o: object.c
+	$(CC) $(DEBUG) -c $(CFLAGS) object.c
 
 .PHONY: lib
 lib:
 	$(MAKE) -C $(LIBDIR)
 
+.PHONY: bin
+bin:
+	$(MAKE) -C $(BINDIR)
+
 .PHONY: clean
 clean:
 	rm -f *.out *.o
 	$(MAKE) -C $(LIBDIR) clean
+	$(MAKE) -C $(BINDIR) clean
 

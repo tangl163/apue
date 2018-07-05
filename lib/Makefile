@@ -1,15 +1,14 @@
+ROOT = ..
+include $(ROOT)/Make.defines
+
 SRC = $(wildcard *.c)
 OBJ = $(SRC:.c=.o)
-
-ifndef CFLAGS
-CFLAGS = -c
-endif
 
 lib.a: $(OBJ)
 	$(AR) rv $@ $?
 
 %.o: %.c
-	gcc -o $@ $(CFLAGS) $<
+	$(CC) $(DEBUG) -c $(CFLAGS) -o $@ $<
 
 .PHONY: clean
 clean:

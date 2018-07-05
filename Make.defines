@@ -1,0 +1,10 @@
+# Common make definitions
+
+CC = gcc
+AR = ar
+LDFLAGS =
+CFLAGS = -I$(ROOT)/include -Wall -Wextra -Werror -Wmissing-prototypes -Wstrict-prototypes
+LIBDIR = $(ROOT)/lib
+LIBARC = $(LIBDIR)/lib.a
+BINDIR = $(ROOT)/bin
+

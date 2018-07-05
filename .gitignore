@@ -1,5 +1,4 @@
 .gitingore
-bin/*
 local/*
 tags
 

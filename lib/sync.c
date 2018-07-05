@@ -1,4 +1,4 @@
-#include "../common.h"
+#include "common.h"
 #include <signal.h>
 
 static void sig_usr(int signo);

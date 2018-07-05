@@ -1,4 +1,4 @@
-#include "../common.h"
+#include "common.h"
 #include <sys/wait.h>
 
 void pr_exit(int status)

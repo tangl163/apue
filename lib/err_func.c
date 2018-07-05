@@ -1,4 +1,4 @@
-#include "../common.h"
+#include "common.h"
 
 static void common_output(int errnoflag, int error, const char *format, va_list ap);
 

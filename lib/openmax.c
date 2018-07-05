@@ -1,4 +1,4 @@
-#include "../common.h"
+#include "common.h"
 
 #define OPEN_MAX_GUESS 256    /* max number of file descriptor */
 

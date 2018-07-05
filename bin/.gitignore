@@ -1,0 +1,8 @@
+# ignore everying
+*
+
+# except these files
+!.gitignore
+!*.c
+!Makefile
+

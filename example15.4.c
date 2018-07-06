@@ -14,10 +14,7 @@ main(void)
     if (signal(SIGPIPE, sig_pipe) == SIG_ERR)
         err_sys("signal error");
 
-    if (pipe(fd1) < 0)
-        err_sys("pipe error");
-
-    if (pipe(fd2) < 0)
+    if (pipe(fd1) < 0 || pipe(fd2) < 0)
         err_sys("pipe error");
 
     pid = fork();
@@ -53,6 +50,11 @@ main(void)
             len = read(fd2[0], buf, MAXLINE);
             if (len < 0)
                 err_sys("read error");
+
+            if (len == 0) {
+                err_msg("child closed pipe");
+                break;
+            }
 
             buf[len] = 0;
             if (fputs(buf, stdout) == EOF)

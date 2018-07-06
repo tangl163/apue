@@ -12,7 +12,7 @@ ifdef DEBUG
 export DEBUG = -g
 endif
 
-$(TARGET): object.o lib bin
+$(TARGET): object.o lib
 	$(CC) -o $@ $< $(LIBARC) $(PTHREAD) $(LDFLAGS)
 
 object.o: object.c

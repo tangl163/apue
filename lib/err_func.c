@@ -10,7 +10,7 @@ err_msg(const char *format, ...)
 {
     va_list ap;
     int en = errno;
-    
+
     va_start(ap, format);
 
     common_output(FALSE, en, format, ap);
@@ -27,7 +27,7 @@ err_quit(const char *format, ...)
 {
     va_list ap;
     int en = errno;
-    
+
     va_start(ap, format);
 
     common_output(FALSE, en, format, ap);
@@ -67,7 +67,7 @@ err_sys(const char *format, ...)
     common_output(TRUE, en, format, ap);
 
     va_end(ap);
-    
+
     exit(1);
 }
 
@@ -78,7 +78,7 @@ void
 err_exit(int err, const char *format, ...)
 {
     va_list ap;
-    
+
     va_start(ap, format);
 
     common_output(TRUE, err, format, ap);
@@ -97,17 +97,14 @@ common_output(int errnoflag, int error, const char *format, va_list ap)
     char buf[MAXLINE];
     int length;
 
-    vsnprintf(buf, MAXLINE, format, ap);
+    vsnprintf(buf, MAXLINE-1, format, ap);
 
     if (errnoflag) {
-        length = strlen(buf);
-        snprintf(buf + length, MAXLINE - length - 1, ": %s", strerror(error));
+        perror(buf);
+    } else {
+        strcat(buf, "\n");
+        fputs(buf, stderr);
+        fflush(NULL);
     }
-
-    strcat(buf, "\n");
-
-    fputs(buf, stderr);
-
-    fflush(NULL);
 }
 

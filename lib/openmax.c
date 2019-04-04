@@ -5,7 +5,8 @@
 /**
  * Get the max number of file descriptor which can be opened.
  */
-long open_max(void)
+long
+open_max(void)
 {
     long openmax;
     struct rlimit rl;

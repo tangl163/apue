@@ -11,7 +11,8 @@ static long pathmax = 0;
 /**
  * allocate storage for a pathname.
  */
-char *path_alloc(size_t *sizep)
+char *
+path_alloc(size_t *sizep)
 {
     char *ptr;
 
@@ -32,7 +33,7 @@ char *path_alloc(size_t *sizep)
 
     if (sizep != NULL)
         *sizep = pathmax;
-    
+
     return ptr;
 }
 

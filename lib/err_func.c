@@ -94,17 +94,18 @@ err_exit(int err, const char *format, ...)
 static void
 common_output(int errnoflag, int error, const char *format, va_list ap)
 {
+    int len;
     char buf[MAXLINE];
-    int length;
 
     vsnprintf(buf, MAXLINE-1, format, ap);
 
     if (errnoflag) {
-        perror(buf);
-    } else {
-        strcat(buf, "\n");
-        fputs(buf, stderr);
-        fflush(NULL);
+        len = strlen(buf);
+        snprintf(buf+len, MAXLINE-len-1, ": %s", strerror(error));
     }
+
+    strcat(buf, "\n");
+    fputs(buf, stderr);
+    fflush(NULL);
 }
 
